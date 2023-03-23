@@ -18,10 +18,10 @@ All the LiDAR-only models are trained in 20 epochs, the fusion-based models are 
 
 | Model   | Backbone | mAP | NDS  |
 |---------|--------|--------|---------|
-| [TransFusion-L](configs/transfusion_nusc_pillar_L.py) | PointPillars | 54.51 | 62.66 |
-| [TransFusion](configs/transfusion_nusc_pillar_LC.py) | PointPillars | 60.21 | 65.50 |
-| [TransFusion-L](configs/transfusion_nusc_voxel_L.py) | VoxelNet | 65.06 | 70.10 |
-| [TransFusion](configs/transfusion_nusc_voxel_LC.py) | VoxelNet | 67.49 | 71.28 |
+| [TransFusion-L](/configs/transfusion_nusc_pillar_L.py) | PointPillars | 54.51 | 62.66 |
+| [TransFusion](/configs/transfusion_nusc_pillar_LC.py) | PointPillars | 60.21 | 65.50 |
+| [TransFusion-L](/configs/transfusion_nusc_voxel_L.py) | VoxelNet | 65.06 | 70.10 |
+| [TransFusion](/configs/transfusion_nusc_voxel_LC.py) | VoxelNet | 67.49 | 71.28 |
 
 ## nuScenes 3D Tracking
 
@@ -29,8 +29,8 @@ We perform tracking-by-detection with the same tracking algorithms proposed by C
 
 | Model   | Backbone | AMOTA | AMOTP  |
 |---------|--------|--------|---------|
-| [TransFusion-L](configs/transfusion_nusc_voxel_L.py) | VoxelNet | 0.703 | 0.553 |
-| [TransFusion](configs/transfusion_nusc_voxel_LC.py) | VoxelNet | 0.725 | 0.561 |
+| [TransFusion-L](/configs/transfusion_nusc_voxel_L.py) | VoxelNet | 0.703 | 0.553 |
+| [TransFusion](/configs/transfusion_nusc_voxel_LC.py) | VoxelNet | 0.725 | 0.561 |
 
 
 ## nuScenes Leaderboard
