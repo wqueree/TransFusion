@@ -1002,7 +1002,13 @@ class TransFusionHead(nn.Module):
                     query_feat[sample_idx, :, on_the_image] = query_feat_view.clone()
 
             self.on_the_image_mask = (on_the_image_mask != -1)
-            res_layer = self.prediction_heads[self.num_decoder_layers](torch.cat([query_feat, prev_query_feat], dim=1))
+            res_layer_input = torch.cat([query_feat, prev_query_feat], dim=1)
+
+            ##############################
+            # Linear Filtering Goes Here #
+            ##############################
+
+            res_layer = self.prediction_heads[self.num_decoder_layers](res_layer_input)
             res_layer['center'] = res_layer['center'] + query_pos.permute(0, 2, 1)
             for key, value in res_layer.items():
                 pred_dim = value.shape[1]
