@@ -14,7 +14,6 @@ from mmdet3d.datasets import build_dataloader, build_dataset
 from mmdet3d.models import build_detector
 from mmdet.apis import multi_gpu_test, set_random_seed
 from mmdet.datasets import replace_ImageToTensor
-from torchsummary import summary
 
 
 def parse_args():
@@ -100,8 +99,6 @@ def parse_args():
 
 
 def main():
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-    os.environ["OMP_NUM_THREADS"] = "1"
     args = parse_args()
 
     assert args.out or args.eval or args.format_only or args.show \
@@ -181,8 +178,6 @@ def main():
         model.CLASSES = checkpoint['meta']['CLASSES']
     else:
         model.CLASSES = dataset.CLASSES
-
-    print(model)
 
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
