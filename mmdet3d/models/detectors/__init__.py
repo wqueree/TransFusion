@@ -9,7 +9,7 @@ from .parta2 import PartA2
 from .ssd3dnet import SSD3DNet
 from .votenet import VoteNet
 from .voxelnet import VoxelNet
-from .transfusion import TransFusionDetector
+from .transfusion import TransFusionDetector, TransFusionDetectorFiltered
 
 __all__ = [
     'Base3DDetector',
@@ -25,4 +25,5 @@ __all__ = [
     'SSD3DNet',
     'ImVoteNet',
     'TransFusionDetector',
+    'TransFusionDetectorFiltered'
 ]
