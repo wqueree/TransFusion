@@ -1,14 +1,18 @@
 import mmcv
 import torch
+from mmcv import Config
 from mmcv.parallel import DataContainer as DC
-from mmcv.runner import force_fp32
+from mmcv.runner import force_fp32, load_checkpoint
 from os import path as osp
 from torch import nn as nn
 from torch.nn import functional as F
 
 from mmdet3d.core import (Box3DMode, Coord3DMode, bbox3d2result,
                           merge_aug_bboxes_3d, show_result)
+from mmdet3d.datasets import build_dataloader, build_dataset
+from mmdet3d.models import build_detector                          
 from mmdet3d.ops import Voxelization
+from mmdet.apis import set_random_seed
 from mmdet.core import multi_apply
 from mmdet.models import DETECTORS
 from .. import builder
@@ -259,6 +263,93 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
             if self.with_img_neck:
                 for param in self.img_neck.parameters():
                     param.requires_grad = False
+
+    @staticmethod
+    def generate_unfiltered_model(config_path, checkpoint_path, args):
+        cfg = Config.fromfile(config_path)
+        if args.cfg_options is not None:
+            cfg.merge_from_dict(args.cfg_options)
+        # import modules from string list.
+        if cfg.get('custom_imports', None):
+            from mmcv.utils import import_modules_from_strings
+            import_modules_from_strings(**cfg['custom_imports'])
+        # set cudnn_benchmark
+        if cfg.get('cudnn_benchmark', False):
+            torch.backends.cudnn.benchmark = True
+
+        cfg.model.pretrained = None
+        # in case the test dataset is concatenated
+        samples_per_gpu = 1
+        if isinstance(cfg.data.test, dict):
+            cfg.data.test.test_mode = True
+            samples_per_gpu = cfg.data.test.pop('samples_per_gpu', 1)
+            if samples_per_gpu > 1:
+                # Replace 'ImageToTensor' to 'DefaultFormatBundle'
+                cfg.data.test.pipeline = replace_ImageToTensor(
+                    cfg.data.test.pipeline)
+        elif isinstance(cfg.data.test, list):
+            for ds_cfg in cfg.data.test:
+                ds_cfg.test_mode = True
+            samples_per_gpu = max(
+                [ds_cfg.pop('samples_per_gpu', 1) for ds_cfg in cfg.data.test])
+            if samples_per_gpu > 1:
+                for ds_cfg in cfg.data.test:
+                    ds_cfg.pipeline = replace_ImageToTensor(ds_cfg.pipeline)
+
+        # init distributed env first, since logger depends on the dist info.
+        if args.launcher == 'none':
+            distributed = False
+        else:
+            distributed = True
+            init_dist(args.launcher, **cfg.dist_params)
+
+        # set random seeds
+        if args.seed is not None:
+            set_random_seed(args.seed, deterministic=args.deterministic)
+
+        # build the dataloader
+        dataset = build_dataset(cfg.data.test)
+        data_loader = build_dataloader(
+            dataset,
+            samples_per_gpu=samples_per_gpu,
+            workers_per_gpu=cfg.data.workers_per_gpu,
+            dist=distributed,
+            shuffle=False)
+
+        # build the model and load checkpoint
+        cfg.model.train_cfg = None
+        model = build_detector(cfg.model, test_cfg=cfg.get('test_cfg'))
+        fp16_cfg = cfg.get('fp16', None)
+        if fp16_cfg is not None:
+            wrap_fp16_model(model)
+        checkpoint = load_checkpoint(model, checkpoint_path, map_location='cpu')
+        if args.fuse_conv_bn:
+            model = fuse_conv_bn(model)
+        # old versions did not save class info in checkpoints, this walkaround is
+        # for backward compatibility
+        if 'CLASSES' in checkpoint.get('meta', {}):
+            model.CLASSES = checkpoint['meta']['CLASSES']
+        else:
+            model.CLASSES = dataset.CLASSES
+        return checkpoint, model
+
+
+    def load_unfiltered_checkpoint(self, config_path, checkpoint_path, args):
+        checkpoint, unfiltered_model = self.generate_unfiltered_model(config_path, checkpoint_path, args)
+        self.pts_voxel_layer.load_state_dict(unfiltered_model.pts_voxel_layer.state_dict())
+        self.pts_voxel_encoder.load_state_dict(unfiltered_model.pts_voxel_encoder.state_dict())
+        self.pts_middle_encoder.load_state_dict(unfiltered_model.pts_middle_encoder.state_dict())
+        self.pts_backbone.load_state_dict(unfiltered_model.pts_backbone.state_dict())
+        self.pts_neck.load_state_dict(unfiltered_model.pts_neck.state_dict())
+
+        # TODO Update to copy only relevant weights. ##################################
+        self.pts_bbox_head.load_state_dict(unfiltered_model.pts_bbox_head.state_dict())
+        ###############################################################################
+
+        self.img_backbone.load_state_dict(unfiltered_model.img_backbone.state_dict())
+        self.img_neck.load_state_dict(unfiltered_model.img_neck.state_dict())
+        return checkpoint
+
 
     def extract_img_feat(self, img, img_metas):
         """Extract features of images."""
