@@ -351,6 +351,27 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
         return checkpoint
 
 
+    @staticmethod
+    def freeze_unfiltered_layer(layer):
+        for param in layer.parameters():
+            param.requires_grad = False
+
+
+    def freeze_unfiltered(self):
+        self.freeze_unfiltered_layer(self.pts_voxel_layer)
+        self.freeze_unfiltered_layer(self.pts_voxel_encoder)
+        self.freeze_unfiltered_layer(self.pts_middle_encoder)
+        self.freeze_unfiltered_layer(self.pts_backbone)
+        self.freeze_unfiltered_layer(self.pts_neck)
+
+        # TODO Freeze all but the filtering layer. #####
+        self.freeze_unfiltered_layer(self.pts_bbox_head)
+        ################################################
+        
+        self.freeze_unfiltered_layer(self.img_backbone)
+        self.freeze_unfiltered_layer(self.img_neck)        
+
+
     def extract_img_feat(self, img, img_metas):
         """Extract features of images."""
         if self.with_img_backbone and img is not None:

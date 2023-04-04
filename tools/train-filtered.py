@@ -174,6 +174,11 @@ def main():
         cfg.model,
         train_cfg=cfg.get('train_cfg'),
         test_cfg=cfg.get('test_cfg'))
+    
+    unfiltered_config_path = "/homes/wlq20/CM30082/TransFusion-Environment/TransFusion/configs/transfusion_nusc_voxel_LC.py"
+    unfiltered_checkpoint_path = "/homes/wlq20/CM30082/TransFusion-Environment/TransFusion/checkpoints/transfusion_nusc_voxel_LC.pth"
+    checkpoint = model.load_unfiltered_checkpoint(unfiltered_config_path, unfiltered_checkpoint_path, args)
+    model.freeze_unfiltered()
 
     if 'freeze_lidar_components' in cfg and cfg['freeze_lidar_components'] is True:
         logger.info(f"param need to update:")
