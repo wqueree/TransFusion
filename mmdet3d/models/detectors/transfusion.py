@@ -2,7 +2,7 @@ import mmcv
 import torch
 from mmcv import Config
 from mmcv.parallel import DataContainer as DC
-from mmcv.runner import force_fp32, load_checkpoint
+from mmcv.runner import force_fp32, load_checkpoint, init_dist
 from os import path as osp
 from torch import nn as nn
 from torch.nn import functional as F
@@ -301,7 +301,7 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
             distributed = False
         else:
             distributed = True
-            init_dist(args.launcher, **cfg.dist_params)
+            # init_dist(args.launcher, **cfg.dist_params)
 
         # set random seeds
         if args.seed is not None:
