@@ -1603,20 +1603,20 @@ class TransFusionHeadFiltered(nn.Module):
             if isinstance(m, (nn.BatchNorm2d, nn.BatchNorm1d)):
                 m.momentum = self.bn_momentum
 
-    def load_unfiltered_checkpoint(unfiltered_head: TransFusionHead):
-        self.loss_cls.load_state_dict(unfiltered_head.state_dict())
-        self.loss_bbox.load_state_dict(unfiltered_model.loss_bbox.state_dict())
-        self.loss_iou.load_state_dict(unfiltered_model.loss_iou.state_dict())
-        self.loss_heatmap.load_state_dict(unfiltered_model.loss_heatmap.state_dict())
-        self.shared_conv.load_state_dict(unfiltered_model.shared_conv.state_dict())
-        self.heatmap_head.load_state_dict(unfiltered_model.heatmap_head.state_dict())
-        self.class_encoding.load_state_dict(unfiltered_model.class_encoding.state_dict())
-        self.loss_heatmap.load_state_dict(unfiltered_model.loss_heatmap.state_dict())
-        self.decoder.load_state_dict(unfiltered_model.decoder.state_dict())
-        self.prediction_heads.load_state_dict(unfiltered_model.prediction_heads.state_dict())
-        self.shared_conv_img.load_state_dict(unfiltered_model.shared_conv_img.state_dict())
-        self.heatmap_head_img.load_state_dict(unfiltered_model.heatmap_head_img.state_dict())
-        self.fc.load_state_dict(unfiltered_model.fc.state_dict())
+    def load_unfiltered_checkpoint(self, unfiltered_head: TransFusionHead):
+        # self.loss_cls.load_state_dict(unfiltered_head.state_dict())
+        self.loss_bbox.load_state_dict(unfiltered_head.loss_bbox.state_dict())
+        self.loss_iou.load_state_dict(unfiltered_head.loss_iou.state_dict())
+        self.loss_heatmap.load_state_dict(unfiltered_head.loss_heatmap.state_dict())
+        self.shared_conv.load_state_dict(unfiltered_head.shared_conv.state_dict())
+        self.heatmap_head.load_state_dict(unfiltered_head.heatmap_head.state_dict())
+        self.class_encoding.load_state_dict(unfiltered_head.class_encoding.state_dict())
+        self.loss_heatmap.load_state_dict(unfiltered_head.loss_heatmap.state_dict())
+        self.decoder.load_state_dict(unfiltered_head.decoder.state_dict())
+        self.prediction_heads.load_state_dict(unfiltered_head.prediction_heads.state_dict())
+        self.shared_conv_img.load_state_dict(unfiltered_head.shared_conv_img.state_dict())
+        self.heatmap_head_img.load_state_dict(unfiltered_head.heatmap_head_img.state_dict())
+        self.fc.load_state_dict(unfiltered_head.fc.state_dict())
 
     def _init_assigner_sampler(self):
         """Initialize the target assigner and sampler of the head."""
