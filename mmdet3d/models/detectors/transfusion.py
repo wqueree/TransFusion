@@ -352,7 +352,7 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
 
 
     @staticmethod
-    def freeze_unfiltered_layer(layer):
+    def freeze_unfiltered_layer(layer: nn.Module):
         for param in layer.parameters():
             param.requires_grad = False
 
@@ -367,7 +367,7 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
         # TODO Freeze all but the filtering layer. #####
         self.freeze_unfiltered_layer(self.pts_bbox_head)
         ################################################
-        
+
         self.freeze_unfiltered_layer(self.img_backbone)
         self.freeze_unfiltered_layer(self.img_neck)        
 
