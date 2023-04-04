@@ -341,11 +341,7 @@ class TransFusionDetectorFiltered(MVXTwoStageDetector):
         self.pts_middle_encoder.load_state_dict(unfiltered_model.pts_middle_encoder.state_dict())
         self.pts_backbone.load_state_dict(unfiltered_model.pts_backbone.state_dict())
         self.pts_neck.load_state_dict(unfiltered_model.pts_neck.state_dict())
-
-        # TODO Update to copy only relevant weights. ##################################
-        self.pts_bbox_head.load_state_dict(unfiltered_model.pts_bbox_head.state_dict())
-        ###############################################################################
-
+        self.pts_bbox_head.load_unfiltered_checkpoint(unfiltered_model.pts_bbox_head)
         self.img_backbone.load_state_dict(unfiltered_model.img_backbone.state_dict())
         self.img_neck.load_state_dict(unfiltered_model.img_neck.state_dict())
         return checkpoint
