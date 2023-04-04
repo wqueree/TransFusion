@@ -173,7 +173,7 @@ def main():
     unfiltered_config_path = "/homes/wlq20/CM30082/TransFusion-Environment/TransFusion/configs/transfusion_nusc_voxel_LC.py"
     unfiltered_checkpoint_path = "/homes/wlq20/CM30082/TransFusion-Environment/TransFusion/checkpoints/transfusion_nusc_voxel_LC.pth"
     checkpoint = model.load_unfiltered_checkpoint(unfiltered_config_path, unfiltered_checkpoint_path, args)
-    model.freeze_unfiltered()
+    # model.freeze_unfiltered()
 
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)
