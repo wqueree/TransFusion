@@ -128,4 +128,7 @@ exps/
 *.obj
 *.ply
 
-show
+show/
+results/
+data_full/
+data_mini/
