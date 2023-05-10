@@ -87,7 +87,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=1,
+    samples_per_gpu=2,
     workers_per_gpu=6,
     train=dict(
         type='CBGSDataset',
@@ -125,7 +125,7 @@ data = dict(
         test_mode=True,
         box_type_3d='LiDAR'))
 model = dict(
-    type='TransFusionDetector',
+    type='TransFusionDetectorFiltered',
     freeze_img=True,
     # img_backbone=dict(
     #     type='DLASeg',
@@ -182,7 +182,7 @@ model = dict(
         upsample_cfg=dict(type='deconv', bias=False),
         use_conv_for_no_stride=True),
     pts_bbox_head=dict(
-        type='TransFusionHead',
+        type='TransFusionHeadFiltered',
         fuse_img=True,
         num_views=num_views,
         in_channels_img=256,
@@ -243,7 +243,7 @@ model = dict(
             voxel_size=voxel_size[:2],
             nms_type=None,
         )))
-optimizer = dict(type='AdamW', lr=0.001, weight_decay=0.01)  # for 8gpu * 2sample_per_gpu
+optimizer = dict(type='AdamW', lr=0.0001, weight_decay=0.01)  # for 8gpu * 2sample_per_gpu
 optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
 lr_config = dict(
     policy='cyclic',
@@ -255,7 +255,7 @@ momentum_config = dict(
     target_ratio=(0.8947368421052632, 1),
     cyclic_times=1,
     step_ratio_up=0.4)
-total_epochs = 1#6
+total_epochs = 6
 checkpoint_config = dict(interval=1)
 log_config = dict(
     interval=50,
@@ -264,7 +264,7 @@ log_config = dict(
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = None
-load_from = './checkpoints/transfusion_nusc_voxel_LC.pth'
+load_from = 'checkpoints/fusion_voxel0075_R50.pth'
 resume_from = None
 workflow = [('train', 1)]
 gpu_ids = range(0, 8)

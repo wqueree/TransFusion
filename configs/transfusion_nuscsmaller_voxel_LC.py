@@ -95,7 +95,7 @@ data = dict(
             type=dataset_type,
             data_root=data_root,
             num_views=num_views,
-            ann_file=data_root + '/nuscenes_infos_train.pkl',
+            ann_file=data_root + '/nuscenes_smaller_infos_train.pkl',
             load_interval=1,
             pipeline=train_pipeline,
             classes=class_names,
@@ -106,7 +106,7 @@ data = dict(
         type=dataset_type,
         data_root=data_root,
         num_views=num_views,
-        ann_file=data_root + '/nuscenes_infos_val.pkl',
+        ann_file=data_root + '/nuscenes_smaller_infos_val.pkl',
         load_interval=1,
         pipeline=test_pipeline,
         classes=class_names,
@@ -117,7 +117,7 @@ data = dict(
         type=dataset_type,
         data_root=data_root,
         num_views=num_views,
-        ann_file=data_root + '/nuscenes_infos_val.pkl',
+        ann_file=data_root + '/nuscenes_smaller_infos_val.pkl',
         load_interval=1,
         pipeline=test_pipeline,
         classes=class_names,
@@ -243,7 +243,7 @@ model = dict(
             voxel_size=voxel_size[:2],
             nms_type=None,
         )))
-optimizer = dict(type='AdamW', lr=0.001, weight_decay=0.01)  # for 8gpu * 2sample_per_gpu
+optimizer = dict(type='AdamW', lr=0.0001, weight_decay=0.001)  # for 8gpu * 2sample_per_gpu
 optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
 lr_config = dict(
     policy='cyclic',
@@ -255,7 +255,7 @@ momentum_config = dict(
     target_ratio=(0.8947368421052632, 1),
     cyclic_times=1,
     step_ratio_up=0.4)
-total_epochs = 1#6
+total_epochs = 20
 checkpoint_config = dict(interval=1)
 log_config = dict(
     interval=50,

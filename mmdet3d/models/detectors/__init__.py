@@ -24,5 +24,5 @@ __all__ = [
     'CenterPoint',
     'SSD3DNet',
     'ImVoteNet',
-    'TransFusionDetector',
+    'TransFusionDetector'
 ]

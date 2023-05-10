@@ -127,3 +127,8 @@ exps/
 /data/sunrgbd/OFFICIAL_SUNRGBD/
 *.obj
 *.ply
+
+show/
+results/
+data_full/
+data_mini/

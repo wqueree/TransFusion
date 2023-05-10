@@ -98,8 +98,8 @@ class TransformerDecoderLayer(nn.Module):
         else:
             key_pos_embed = None
 
-        query = query.permute(2, 0, 1)
-        key = key.permute(2, 0, 1)
+        query = query.permute(2, 0, 1) # LiDAR Feature
+        key = key.permute(2, 0, 1) # RGB Image Feature
 
         if not self.cross_only:
             q = k = v = self.with_pos_embed(query, query_pos_embed)
@@ -990,7 +990,7 @@ class TransFusionHead(nn.Module):
                     centers = torch.cat([center_xs, center_ys], dim=-1).int()  # center on the feature map
                     corners = (coor_corner_xy[on_the_image].max(1).values - coor_corner_xy[on_the_image].min(1).values) / self.out_size_factor_img
                     radius = torch.ceil(corners.norm(dim=-1, p=2) / 2).int()  # radius of the minimum circumscribed circle of the wireframe
-                    sigma = (radius * 2 + 1) / 6.0
+                    sigma = (2.0 * radius + 1) / 6.0  # Modulate coefficient of radius here.
                     distance = (centers[:, None, :] - (img_feat_pos - 0.5)).norm(dim=-1) ** 2
                     gaussian_mask = (-distance / (2 * sigma[:, None] ** 2)).exp()
                     gaussian_mask[gaussian_mask < torch.finfo(torch.float32).eps] = 0
@@ -1002,7 +1002,8 @@ class TransFusionHead(nn.Module):
                     query_feat[sample_idx, :, on_the_image] = query_feat_view.clone()
 
             self.on_the_image_mask = (on_the_image_mask != -1)
-            res_layer = self.prediction_heads[self.num_decoder_layers](torch.cat([query_feat, prev_query_feat], dim=1))
+            res_layer_input = torch.cat([query_feat, prev_query_feat], dim=1) # Final Fused FFN Feature
+            res_layer = self.prediction_heads[self.num_decoder_layers](res_layer_input)
             res_layer['center'] = res_layer['center'] + query_pos.permute(0, 2, 1)
             for key, value in res_layer.items():
                 pred_dim = value.shape[1]
